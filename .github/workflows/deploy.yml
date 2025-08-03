@@ -76,8 +76,11 @@ jobs:
           username: ${{ env.EC2_USER }}
           key: ${{ env.EC2_SSH_PRIVATE_KEY }}
           script: |
+            # Asegura que el usuario 'ubuntu' sea el dueño de la carpeta
+            sudo chown -R ${{ env.EC2_USER }}:${{ env.EC2_USER }} /var/www/security-cam-project/irvingchampo-ws-servidor-securitycam-
+            
             echo "--- Installing dependencies and restarting WebSocket service ---"
             WS_DIR="/var/www/security-cam-project/irvingchampo-ws-servidor-securitycam-"
             cd $WS_DIR
             npm install
-      
+            pm2 restart SecurityCam-WebSocket || pm2 start /var/www/security-cam-project/ecosystem.config.js --only SecurityCam-WebSocket
