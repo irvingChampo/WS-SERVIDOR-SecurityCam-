@@ -1,0 +1,84 @@
+# irvingchampo-ws-servidor-securitycam-/.github/workflows/deploy.yml
+
+name: Deploy WebSocket to EC2
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    env:
+      EC2_HOST: "54.209.205.100"
+      EC2_USER: "ubuntu"
+      EC2_SSH_PRIVATE_KEY: |
+        -----BEGIN RSA PRIVATE KEY-----
+        MIIEpQIBAAKCAQEAwo19aoTAtwoexzEeoVQNwYqThIPDkQ30L2xmhCNfNxqfpSh0
+        VJ8HBk1CDYyaxiqKia22rSS+nBsW/6qXT9Ug6FO0ifesrdW0uL66dAuKOWQSg4FQ
+        TlvsQFZ8RXyO81umYg9PdIlsWXmX8DVHSNR/YQe7XH56V2wUfdSPoyhQNzUT3ckR
+        tixVezESRAgzOzaWQr88CN/tbWJ9Z8tR58MKd7G2plvVuwWbnjtpRynGe2+zHwPc
+        TIsa7VMIELV2caeoU8UmvH1ISX55fseUvgKsYRh6Qx4q3FT/x4jtlWJwFZzKN7cZ
+        0tTq0ABqk8NsndeuW0EqMMkXi1mtBdBTqqtVvQIDAQABAoIBAQC9meB496lMeOtn
+        2qHsPZsuXBvJ0BO+gKfRs8XwzvwTGros3dEJSvYwmQhfZgDMUVcОN/xInv+36Nqw
+        DRNrdNyeLj1LG/nIa/W0+gOB5mEt7y3vxQ17YDBMvzxbB7nUxyPOevdHLkpOpKaD
+        LZksDBObf0qEKKqYGjeaLZZSPo52TWvDcR89cHsQebt61Y5cSisujLWGbhekYDEL
+        1eyz9s6NtYdmyTP+E8DFUb2YB8NuW9P3/hj0B15yO/a3oDVVOrehhq06Subi4cRk
+        7HusOXdAejziNZSSKPgTTchqG6Q/0UEzHY05QwT1ZJi/PjxCmpxw/cQhdNhI1I49
+        VFOLoW1hAoGBAOXEe4VmmmnWoCVYip77viG3MaOqZxCb10YUDjJt8FVjFmU2ivzP
+        Hg1w/qGDQHAFz5XTjabkFCWRiCUmAu+yzFf+3l+gtB6eh0BYnyCNRLmc6LxXXuLR
+        0WFPrNxgsBTR/X7vKJutuCOZFOmjvNmW/SFXDIZI5X5611/X49l6aBX5AoGBANjD
+        xK9qm0Dp3miCtkEbOvB//m8RZFH7AFeY2CXq4WU0+gT+u+Kk769DnwaZS3kGltFu
+        pT/G20o2vjh9VXS9Kj932QfWT6IfjcIdWTYWpN33z2lIJ4w2scS+1mWQHZg2CEwD
+        9APkN/cG2Om9onWaapDA8GmAWm0ZjFJbw2feAJ7lAoGATAo3etGW/rnp7BIeZjkY
+        Fl5jTi/hxgxdNTMD88qQhCGz0rE3VC1TW81uZ5NhavFxXrtRoM7QoBJGxUyMIjnB
+        CMovW+R6V7vNNQ1fNE2sVeVI3LPpkhUwPw04PwK8o1dPloedn8/hJd7OnffzUut2
+        QGdnnLVZRf9vcaeoH1w0QDkCgYEAtMF7MDQbxuO+nTPyuxPz8D0rdH7yQxKl1GYW
+        SHg3AGhO3P92uaaEYIhpAd2u+/sspPQ5RJeUoaxIr16EdlaP9mEAT/K8cRsS4P4M
+        OHhlftt4z/hlUh0B3Giu6/5jT1wvSwQ45U3YBVxmYXPLF3puxsq9L5ziyvt08fCn
+        X+PWbKkCgYEA0evRKp7lBga2l5atm8RU+7kJJEw45+BlFz2qvxTD5eX0/TCalB94
+        YrGPYvV7hVq9GDCJU2e4CwMI+IadIrV2XSk5UnhqAfMlGRoLQTbJaFh5bgdDIt03
+        r0l+2gHj+uLeJ5Gi8yFNZM61bpBrkjG5x6yjxV5NV8lCOWKfSqAdI+U=
+        -----END RSA PRIVATE KEY-----
+
+    steps:
+      - name: 1. Checkout Code
+        uses: actions/checkout@v4
+
+      - name: 2. Create Directory and Clean Old Files
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ env.EC2_HOST }}
+          username: ${{ env.EC2_USER }}
+          key: ${{ env.EC2_SSH_PRIVATE_KEY }}
+          script: |
+            echo "--- Cleaning WebSocket specific directory ---"
+            WS_DIR="/var/www/security-cam-project/irvingchampo-ws-servidor-securitycam-"
+            sudo mkdir -p $WS_DIR
+            sudo rm -rf $WS_DIR/*
+
+      - name: 3. Copy WebSocket Files to EC2
+        uses: appleboy/scp-action@v1.0.0
+        with:
+          host: ${{ env.EC2_HOST }}
+          username: ${{ env.EC2_USER }}
+          key: ${{ env.EC2_SSH_PRIVATE_KEY }}
+          source: "./*"
+          target: "/var/www/security-cam-project/irvingchampo-ws-servidor-securitycam-"
+
+      - name: 4. Install Dependencies and Restart Service
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ env.EC2_HOST }}
+          username: ${{ env.EC2_USER }}
+          key: ${{ env.EC2_SSH_PRIVATE_KEY }}
+          script: |
+            echo "--- Installing dependencies and restarting WebSocket service ---"
+            WS_DIR="/var/www/security-cam-project/irvingchampo-ws-servidor-securitycam-"
+            cd $WS_DIR
+            npm install
+            # Usamos PM2 para reiniciar solo este servicio específico por su nombre
+            pm2 restart SecurityCam-WebSocket
