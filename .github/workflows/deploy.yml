@@ -23,7 +23,7 @@ jobs:
         tixVezESRAgzOzaWQr88CN/tbWJ9Z8tR58MKd7G2plvVuwWbnjtpRynGe2+zHwPc
         TIsa7VMIELV2caeoU8UmvH1ISX55fseUvgKsYRh6Qx4q3FT/x4jtlWJwFZzKN7cZ
         0tTq0ABqk8NsndeuW0EqMMkXi1mtBdBTqqtVvQIDAQABAoIBAQC9meB496lMeOtn
-        2qHsPZsuXBvJ0BO+gKfRs8XwzvwTGros3dEJSvYwmQhfZgDMUVcОN/xInv+36Nqw
+        2qHsPZsuXBvJ0BO+gKfRs8XwzvwTGros3dEJSvYwmQhfZgDMUVc0N/xInv+36Nqw
         DRNrdNyeLj1LG/nIa/W0+gOB5mEt7y3vxQ17YDBMvzxbB7nUxyPOevdHLkpOpKaD
         LZksDBObf0qEKKqYGjeaLZZSPo52TWvDcR89cHsQebt61Y5cSisujLWGbhekYDEL
         1eyz9s6NtYdmyTP+E8DFUb2YB8NuW9P3/hj0B15yO/a3oDVVOrehhq06Subi4cRk
@@ -80,5 +80,4 @@ jobs:
             WS_DIR="/var/www/security-cam-project/irvingchampo-ws-servidor-securitycam-"
             cd $WS_DIR
             npm install
-            # Usamos PM2 para reiniciar solo este servicio específico por su nombre
-            pm2 restart SecurityCam-WebSocket
+      
